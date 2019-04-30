@@ -6,4 +6,5 @@ import (
 
 func main() {
 	concur.DoConcur()
+	concur.RunChans()
 }
