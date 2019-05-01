@@ -125,3 +125,21 @@ func SelectMany() {
 	close(c)
 	close(p)
 }
+
+func SelectDefault() {
+	tick := time.Tick(100 * time.Millisecond)
+	end := time.After(500 * time.Millisecond)
+
+	for {
+		select {
+		case <-tick:
+			fmt.Printf("tick.")
+		case <-end:
+			fmt.Printf("done\n")
+			return
+		default:
+			fmt.Print("..")
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+}

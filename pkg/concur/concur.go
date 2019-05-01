@@ -19,6 +19,8 @@ func RunChans() {
 	chans.RangeSyncClose()
 
 	chans.SelectMany()
+
+	chans.SelectDefault()
 }
 
 func RunRedits() {
