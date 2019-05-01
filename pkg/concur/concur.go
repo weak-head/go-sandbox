@@ -18,3 +18,7 @@ func RunChans() {
 
 	chans.RangeSyncClose()
 }
+
+func RunRedits() {
+	chans.PrintRedits()
+}

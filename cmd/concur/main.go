@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
-	concur.DoConcur()
-	concur.RunChans()
+	// concur.DoConcur()
+	// concur.RunChans()
+	concur.RunRedits()
 }
