@@ -65,3 +65,63 @@ func RangeSyncClose() {
 	wg.Wait()
 	fmt.Println("Finished")
 }
+
+func SelectMany() {
+	var wg sync.WaitGroup
+	wg.Add(6)
+
+	c := make(chan int, 3)
+	p := make(chan int, 3)
+	r := make(chan int)
+
+	// 3 producers
+	for i := 0; i < 3; i++ {
+		go func(ch chan int, n int) {
+			defer wg.Done()
+			defer fmt.Printf("producer c%d is done\n", n)
+			for j := 0; j < 50; j++ {
+				ch <- j
+			}
+		}(c, i)
+	}
+
+	// another 3 producers
+	for i := 0; i < 3; i++ {
+		go func(ch chan int, n int) {
+			defer wg.Done()
+			defer fmt.Printf("producer p%d is done\n", n)
+			for j := 0; j < 50; j++ {
+				ch <- j
+			}
+		}(p, i)
+	}
+
+	// 1 consumer
+	go func(ch1, ch2 chan int) {
+		s := 0
+		nwait := 3
+		for {
+			select {
+			case v1 := <-ch1:
+				s += v1
+			case v2 := <-ch2:
+				s += v2
+			case <-time.After(1 * time.Second):
+				if nwait <= 0 {
+					fmt.Println("Exit consumer")
+					r <- s
+					return
+				}
+				fmt.Println("No input from producers")
+				nwait--
+			}
+		}
+	}(c, p)
+
+	fmt.Println("Waiting for producers to finish")
+	wg.Wait()
+	fmt.Println("All producers are finished")
+	fmt.Printf("Result %d\n", <-r)
+	close(c)
+	close(p)
+}
