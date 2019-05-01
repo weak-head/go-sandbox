@@ -13,4 +13,8 @@ func DoConcur() {
 func RunChans() {
 	a := []int{10, 20, 30, 40, 50, 60}
 	fmt.Println(chans.Sum(a))
+
+	chans.BufferedChan()
+
+	chans.RangeSyncClose()
 }
