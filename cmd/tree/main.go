@@ -5,7 +5,5 @@ import (
 )
 
 func main() {
-	concur.DoConcur()
-	concur.RunChans()
-	concur.RunRedits()
+	concur.TestSame()
 }
