@@ -9,9 +9,27 @@ type SafeCounter struct {
 	mux sync.Mutex
 }
 
+func New() *SafeCounter {
+	return &SafeCounter{v: make(map[string]int)}
+}
+
+func (s *SafeCounter) UnsafeInc(key string) {
+	s.v[key]++
+}
+
+func (s *SafeCounter) UnsafeDec(key string) {
+	s.v[key]--
+}
+
 func (s *SafeCounter) Inc(key string) {
 	s.mux.Lock()
 	s.v[key]++
+	s.mux.Unlock()
+}
+
+func (s *SafeCounter) Dec(key string) {
+	s.mux.Lock()
+	s.v[key]--
 	s.mux.Unlock()
 }
 

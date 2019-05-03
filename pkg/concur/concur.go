@@ -3,8 +3,10 @@ package concur
 import (
 	"fmt"
 	"gobox/pkg/concur/chans"
+	"gobox/pkg/concur/counter"
 	"gobox/pkg/concur/routine"
 	"gobox/pkg/concur/tree"
+	"time"
 )
 
 func DoConcur() {
@@ -52,4 +54,41 @@ func TestSame() {
 			fmt.Printf("Not same for %d and %d\n", n, n+1)
 		}
 	}
+}
+
+func TestCounter() {
+	cnt1 := counter.New()
+
+	for i := 0; i < 1000; i++ {
+		go func(i int) {
+			if i%2 == 0 {
+				cnt1.Inc("abc")
+			} else {
+				cnt1.Dec("abc")
+			}
+		}(i)
+	}
+
+	time.Sleep(time.Second)
+	fmt.Printf("Val %d\n", cnt1.Val("abc"))
+
+	// this will cause errors
+	for i := 0; i < 1000; i++ {
+		go func(i int) {
+			// and recovery will not help
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Println("Recovered in f")
+				}
+			}()
+
+			if i%2 == 0 {
+				cnt1.UnsafeInc("abc")
+			} else {
+				cnt1.UnsafeDec("abc")
+			}
+		}(i)
+	}
+	time.Sleep(time.Second)
+	fmt.Printf("Val %d\n", cnt1.Val("abc"))
 }
