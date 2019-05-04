@@ -41,9 +41,18 @@ func Crawl(url string, depth int, fetcher Fetcher, processor Processor) {
 
 	if fetched != nil {
 		processor.Process(fetched)
+
+		var wg sync.WaitGroup
+		wg.Add(len(fetched.Links))
+
 		for _, link := range fetched.Links {
-			go Crawl(link, depth-1, fetcher, processor)
+			go func(link string) {
+				defer wg.Done()
+				Crawl(link, depth-1, fetcher, processor)
+			}(link)
 		}
+
+		wg.Wait()
 	}
 }
 

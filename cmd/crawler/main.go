@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"gobox/pkg/concur/crawler"
-	"time"
 )
 
 type FetchProcessor struct {
@@ -19,6 +18,6 @@ func (fp *FetchProcessor) Process(fi *crawler.FetchedInfo) {
 
 func main() {
 	crawler.Crawl("http://base.com", 4, crawler.MakeFetcher(), &FetchProcessor{})
-	time.Sleep(time.Second)
-	fmt.Println("exit")
+	// time.Sleep(time.Second)
+	// fmt.Println("exit")
 }
