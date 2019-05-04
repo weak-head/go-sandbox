@@ -72,11 +72,54 @@ func MakeFetcher() Fetcher {
 		urls: map[string]*FetchedInfo{
 			"http://base.com": &FetchedInfo{
 				"http://base.com",
-				"Base",
+				"Root",
 				[]string{
 					"http://base.com/user",
 					"http://base.com/auth",
 					"http://base.com/help",
+				},
+				nil,
+			},
+			"http://base.com/user": &FetchedInfo{
+				"http://base.com/user",
+				"User",
+				[]string{
+					"http://base.com",
+					"http://base.com/auth",
+					"http://base.com/signin",
+					"http://base.com/signup",
+				},
+				nil,
+			},
+			"http://base.com/signup": &FetchedInfo{
+				"http://base.com/signup",
+				"SignUp",
+				[]string{
+					"http://base.com",
+					"http://base.com/user",
+					"http://base.com/signin",
+					"http://base.com/auth",
+					"http://base.com/recover",
+				},
+				nil,
+			},
+			"http://base.com/recover": &FetchedInfo{
+				"http://base.com/recover",
+				"Recover",
+				[]string{
+					"http://base.com/help",
+					"http://base.com/schedulecall",
+					"http://base.com/auth",
+				},
+				nil,
+			},
+			"http://base.com/schedulecall": &FetchedInfo{
+				"http://base.com/schedulecall",
+				"ScheduleCall",
+				[]string{
+					"http://base.com",
+					"http://base.com/auth",
+					"http://base.com/news",
 				},
 				nil,
 			},
