@@ -1,5 +1,10 @@
 package crawler
 
+import (
+	"errors"
+	"sync"
+)
+
 type Fetcher interface {
 	Fetch(url string) *FetchedInfo
 }
@@ -15,8 +20,31 @@ type FetchedInfo struct {
 	Er    error
 }
 
-func Crawl(url string, depth int, fetched Fetcher, processor Processor) {
-	processor.Process(&FetchedInfo{"abc", "body", nil, nil})
+var (
+	fetchMap = make(map[string]*FetchedInfo)
+	mu       sync.RWMutex
+)
+
+func Crawl(url string, depth int, fetcher Fetcher, processor Processor) {
+	if depth <= 0 {
+		return
+	}
+
+	var fetched *FetchedInfo
+
+	mu.Lock()
+	if _, alreadyFetched := fetchMap[url]; !alreadyFetched {
+		fetched = fetcher.Fetch(url)
+		fetchMap[url] = fetched
+	}
+	mu.Unlock()
+
+	if fetched != nil {
+		processor.Process(fetched)
+		for _, link := range fetched.Links {
+			go Crawl(link, depth-1, fetcher, processor)
+		}
+	}
 }
 
 type FakeFetcher struct {
@@ -24,13 +52,16 @@ type FakeFetcher struct {
 }
 
 func (fetcher *FakeFetcher) Fetch(url string) *FetchedInfo {
-	return nil
+	if info, ok := fetcher.urls[url]; ok {
+		return info
+	}
+	return &FetchedInfo{url, "", nil, errors.New("404 - Not Found")}
 }
 
 func MakeFetcher() Fetcher {
 	return &FakeFetcher{
 		urls: map[string]*FetchedInfo{
-			"http://base.come": &FetchedInfo{
+			"http://base.com": &FetchedInfo{
 				"http://base.com",
 				"Base",
 				[]string{
