@@ -15,8 +15,9 @@ type (
 	}
 
 	State struct {
-		url    string
-		status string
+		url     string
+		status  string
+		retries int
 	}
 
 	HttpPoller struct{}
@@ -33,7 +34,7 @@ func (hp *HttpPoller) Poll(url string) (code int, status string) {
 	resp, err := http.Head(url)
 
 	if err != nil {
-		log.Println("Error", url, err)
+		// log.Println("Error", url, err)
 		return 0, err.Error()
 	}
 
@@ -42,7 +43,7 @@ func (hp *HttpPoller) Poll(url string) (code int, status string) {
 
 func mkStateMonitor(pollTime time.Duration) chan<- *State {
 	state := make(chan *State)
-	stateMap := make(map[string]string)
+	stateMap := make(map[string]State)
 	timer := time.NewTicker(pollTime)
 
 	go func() {
@@ -51,7 +52,7 @@ func mkStateMonitor(pollTime time.Duration) chan<- *State {
 			case <-timer.C:
 				logState(stateMap)
 			case s := <-state:
-				stateMap[s.url] = s.status
+				stateMap[s.url] = *s
 			}
 		}
 	}()
@@ -59,16 +60,19 @@ func mkStateMonitor(pollTime time.Duration) chan<- *State {
 	return state
 }
 
-func logState(stateMap map[string]string) {
+func logState(stateMap map[string]State) {
+	log.Println()
 	for k, v := range stateMap {
-		log.Printf("%s -> %s\n", k, v)
+		log.Printf("[%d] %s -> %s\n", v.retries, k, v.status)
 	}
+	log.Println()
+
 }
 
 func PollUrl(poller Poller, in <-chan *Resource, out chan<- *Resource, state chan<- *State) {
 	for i := range in {
 		code, status := poller.Poll(i.url)
-		state <- &State{i.url, status}
+		state <- &State{i.url, status, i.errors}
 
 		// We are interested only in 200 OK
 		if code != 200 {
@@ -98,6 +102,22 @@ func RetryFailed(done <-chan *Resource, retry chan<- *Resource) {
 	}
 }
 
-func Poll(urls []string) map[string]string {
-	return nil
+func Poll(urls []string) {
+	pending := make(chan *Resource, 3)
+	done := make(chan *Resource, 3)
+	state := mkStateMonitor(500 * time.Millisecond)
+
+	for i := 0; i < 3; i++ {
+		go PollUrl(&HttpPoller{}, pending, done, state)
+	}
+
+	go func() {
+		for _, url := range urls {
+			pending <- &Resource{url, 0, "", 0}
+		}
+	}()
+
+	go RetryFailed(done, pending)
+
+	time.Sleep(5 * time.Second)
 }

@@ -5,5 +5,12 @@ import (
 )
 
 func main() {
-	fp.Poll()
+	urls := []string{
+		"http://google.com",
+		"http://microsoft.com",
+		"http://amazon.com",
+		"http://ababba.com.com",
+		"http://some.other.com",
+	}
+	pl.Poll(urls)
 }
