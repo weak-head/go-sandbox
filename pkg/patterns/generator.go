@@ -1,4 +1,4 @@
-package pattern
+package patterns
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ func Generator(msg string) <-chan string {
 }
 
 // Usage is an example if using Generator pattern
-func Usage() {
+func GeneratorUsage() {
 	c := Generator("message")
 	for i := 0; i < 10; i++ {
 		fmt.Printf("Received: %s\n", <-c)

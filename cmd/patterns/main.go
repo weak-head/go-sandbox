@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	pt.Usage()
+	pt.FanInUsage()
 }
