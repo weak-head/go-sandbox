@@ -8,4 +8,5 @@ func main() {
 	// pt.WaitGeneratorInUse()
 	pt.SelectTimeoutMessage()
 	pt.SelectTimeoutConversation()
+	pt.QuitUsage()
 }
