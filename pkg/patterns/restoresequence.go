@@ -54,7 +54,7 @@ func WaitGeneratorInUse() {
 	c := FanInMsg(
 		WaitGenerator("Howdy"),
 		WaitGenerator("Boom Bang"),
-		WaitGenerator("Doing Stuff")
+		WaitGenerator("Doing Stuff"),
 	)
 
 	for i := 0; i < 5; i++ {

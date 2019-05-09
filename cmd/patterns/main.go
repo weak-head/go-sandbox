@@ -5,5 +5,6 @@ import (
 )
 
 func main() {
-	pt.WaitGeneratorInUse()
+	// pt.WaitGeneratorInUse()
+	pt.SelectTimeout()
 }
