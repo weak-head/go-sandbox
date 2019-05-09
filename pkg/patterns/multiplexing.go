@@ -20,7 +20,7 @@ func FanIn(input1, input2 <-chan string) <-chan string {
 	return c
 }
 
-// Usage is an example if using simple channel mutliplexing
+// FanInUsage is an example if using simple channel multiplexing
 func FanInUsage() {
 	c := FanIn(Generator("Hey"), Generator("Wow Wow"))
 	for i := 0; i < 10; i++ {

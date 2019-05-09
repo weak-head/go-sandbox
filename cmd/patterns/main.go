@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	pt.FanInUsage()
+	pt.WaitGeneratorInUse()
 }

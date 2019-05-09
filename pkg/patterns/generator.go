@@ -19,7 +19,7 @@ func Generator(msg string) <-chan string {
 	return c
 }
 
-// Usage is an example if using Generator pattern
+// GeneratorUsage is an example if using Generator pattern
 func GeneratorUsage() {
 	c := Generator("message")
 	for i := 0; i < 10; i++ {
