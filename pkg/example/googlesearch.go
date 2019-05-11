@@ -51,6 +51,27 @@ func Google2(query string) (results []Result) {
 	return
 }
 
+// Google3 exit on timeout collecting all
+// results that are ready
+func Google3(query string) (results []Result) {
+	c := make(chan Result)
+	for _, s := range All {
+		go func(c chan Result, s Search, q string) {
+			c <- s(q)
+		}(c, s, query)
+	}
+
+	t := time.After(60 * time.Millisecond)
+	for {
+		select {
+		case r := <-c:
+			results = append(results, r)
+		case <-t:
+			return
+		}
+	}
+}
+
 // DoSearch starts the search and prints out the results
 func DoSearch(search func(query string) []Result) {
 	rand.Seed(time.Now().UnixNano())
@@ -75,4 +96,7 @@ func RunSearches() {
 
 	fmt.Println("\nGoogle2")
 	DoSearch(Google2)
+
+	fmt.Println("\nGoogle3")
+	DoSearch(Google3)
 }
