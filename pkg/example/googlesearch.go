@@ -36,12 +36,27 @@ func Google1(query string) (results []Result) {
 	return
 }
 
+// Google2 -> run concurrently and wait for results
+func Google2(query string) (results []Result) {
+	c := make(chan Result)
+	for _, s := range All {
+		go func(c chan Result, s Search, q string) {
+			c <- s(q)
+		}(c, s, query)
+	}
+
+	for i := 0; i < len(All); i++ {
+		results = append(results, <-c)
+	}
+	return
+}
+
 // DoSearch starts the search and prints out the results
-func DoSearch() {
+func DoSearch(search func(query string) []Result) {
 	rand.Seed(time.Now().UnixNano())
 
 	start := time.Now()
-	results := Google1("golang")
+	results := search("golang")
 	elapsed := time.Since(start)
 
 	// fmt.Printf("%#v\n", results)
@@ -51,4 +66,13 @@ func DoSearch() {
 	}
 	fmt.Println(strings.Join(strs, "\n"))
 	fmt.Println(elapsed)
+}
+
+// RunSearches runs all the search cases
+func RunSearches() {
+	fmt.Println("\nGoogle1")
+	DoSearch(Google1)
+
+	fmt.Println("\nGoogle2")
+	DoSearch(Google2)
 }

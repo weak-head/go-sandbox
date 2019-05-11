@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	ex.DoSearch()
+	ex.RunSearches()
 }
