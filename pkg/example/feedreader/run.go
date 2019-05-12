@@ -1,0 +1,5 @@
+package feedreader
+
+func FetchFeeds() {
+
+}
