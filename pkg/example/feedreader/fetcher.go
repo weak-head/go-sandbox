@@ -1,7 +1,9 @@
 package feedreader
 
 import (
+	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	rss "github.com/mattn/go-pkg-rss"
@@ -53,11 +55,12 @@ func realFetch(uri string) Fetcher {
 				links = append(links, link.Href)
 			}
 
-			ft.items = append(ft.items, Item{
-				GUID:  *item.Guid,
-				Title: item.Title,
-				Links: links,
-			})
+			ni := Item{Title: item.Title, Links: links}
+			if item.Guid != nil {
+				ni.GUID = *item.Guid
+			}
+
+			ft.items = append(ft.items, ni)
 		}
 	}
 
@@ -70,11 +73,25 @@ func (f *fakeFetcher) Fetch() (items []Item, next time.Time, err error) {
 	now := time.Now()
 	next = now.Add(time.Duration(rand.Intn(3)) * 700 * time.Millisecond)
 
+	item := Item{
+		Title: fmt.Sprintf("Item %d", len(f.items)),
+		Links: []string{"Link1", "Link2"},
+	}
+	item.GUID = strconv.Itoa(rand.Intn(550)) + "_" + item.Title
+
+	f.items = append(f.items, item)
+	items = f.items
 	return
 }
 
 func (f *realFetcher) Fetch() (items []Item, next time.Time, err error) {
+	if err = f.feed.Fetch(f.uri, nil); err != nil {
+		return
+	}
+
+	items = f.items
+	f.items = nil
+
+	next = time.Now().Add(time.Duration(f.feed.SecondsTillUpdate()) * time.Second)
 	return
 }
-
-// https://news.ycombinator.com/rss
