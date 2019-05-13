@@ -11,12 +11,12 @@
 
 ## Tiny Examples
 
-- [mutex](pkg/concur/counter.go)
+- [mutex](pkg/concur/counter/counter.go)
 - [wait group #1](pkg/concur/chans/chans.go)
 - [wait group #2](pkg/concur/chans/subred.go)
-- [synced map](pkg/concur/chans/crawler/crawler.go)
-- [url poll](pkg/concur/chans/poller/poller.go)
-- [compare binary trees](pkg/concur/chans/tree/tree.go)
+- [synced map](pkg/concur/crawler/crawler.go)
+- [url poll](pkg/concur/poller/poller.go)
+- [compare binary trees](pkg/concur/tree/tree.go)
 
 ## Complete Examples
 
