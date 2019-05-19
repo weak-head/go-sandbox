@@ -1,5 +1,7 @@
 # gobox
 
+Simple Go Patterns and some basic examples of usage.
+
 ## Basic Patterns
 
 - [generator](pkg/patterns/generator.go)
