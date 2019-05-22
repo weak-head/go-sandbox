@@ -1,5 +1,7 @@
 package feedreader
 
+import "time"
+
 // A Subscription delivers items over a channel.
 type Subscription interface {
 	Updates() <-chan Item
@@ -35,6 +37,57 @@ func (s *sub) Close() error {
 	return <-ec
 }
 
+// the main subscription loop
 func (s *sub) loop() {
 
+	const maxPending = 5
+
+	type fetchResult struct {
+		fetched []Item
+		next    time.Time
+		err     error
+	}
+
+	var (
+		fetchDone chan fetchResult        // when fetch is running this is not nil
+		pending   []Item                  // new feed items to report
+		next      time.Time               // next fetch time
+		seen      = make(map[string]bool) // already reported feeds
+		err       error                   // last error
+	)
+
+	for {
+
+		// Evaluate the current wait delay before the next fetch
+		var fetchDelay time.Duration
+		if now := time.Now(); next.After(now) {
+			fetchDelay = next.Sub(now)
+		}
+
+		// In case if fetch is not running wait for the delay and
+		// trigger the next fetch via the startFetch cannel
+		var startFetch <-chan time.Time
+		if fetchDone == nil && len(pending) < maxPending {
+			startFetch = time.After(fetchDelay)
+		}
+
+		// If there are some pending items we need to send them
+		var first Item
+		var updates chan Item
+		if len(pending) > 0 {
+			first = pending[0]
+			updates = s.updates
+		}
+
+		select {
+		// Close the subscription, clean up the resources
+		// and terminate the loop
+		case ec := <-s.closing:
+			close(s.updates)
+			ec <- err
+			return
+
+			// At least one
+		}
+	}
 }
