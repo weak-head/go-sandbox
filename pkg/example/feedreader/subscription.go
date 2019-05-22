@@ -80,6 +80,35 @@ func (s *sub) loop() {
 		}
 
 		select {
+
+		// Start a new fetch and init a fetchDone channel
+		// that will accept the results of the fetch
+		case <-startFetch:
+			fetchDone = make(chan fetchResult)
+			go func() {
+				fetched, next, err := s.fetcher.Fetch()
+				fetchDone <- fetchResult{fetched, next, err}
+			}()
+
+		// In case if fetch is finished reads the fetch results
+		// and puts them to pending queue
+		case res := <-fetchDone:
+			fetchDone = nil
+			fetched := res.fetched
+			next, err = res.next, res.err
+
+			if err != nil {
+				next = time.Now().Add(10 * time.Second)
+				break
+			}
+
+			for _, item := range fetched {
+				if id := item.GUID; !seen[id] {
+					pending = append(pending, item)
+					seen[id] = true
+				}
+			}
+
 		// Close the subscription, clean up the resources
 		// and terminate the loop
 		case ec := <-s.closing:
@@ -87,7 +116,10 @@ func (s *sub) loop() {
 			ec <- err
 			return
 
-			// At least one
+		// Send the next pending item to updates chan
+		case updates <- first:
+			pending = pending[1:]
+
 		}
 	}
 }
