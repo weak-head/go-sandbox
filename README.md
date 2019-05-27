@@ -1,7 +1,6 @@
 # gobox
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/weak-head/gobox?style=flat-square)](https://goreportcard.com/report/github.com/weak-head/gobox)
-[![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](http://godoc.org/github.com/weak-head/gobox)
+[![Go Report Card](https://goreportcard.com/badge/github.com/weak-head/gobox)](https://goreportcard.com/report/github.com/weak-head/gobox)
 [![GoDoc](https://godoc.org/github.com/weah-head/gobox?status.svg)](https://godoc.org/github.com/weak-head/gobox)
 
 Simple Go Patterns and some basic examples of usage.
