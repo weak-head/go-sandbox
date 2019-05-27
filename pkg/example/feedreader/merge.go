@@ -11,7 +11,14 @@ type merge struct {
 }
 
 func (m *merge) Close() (err error) {
-	return nil
+	close(m.quit)
+	for range m.subs {
+		if e := <-m.err; e != nil {
+			err = e
+		}
+	}
+	close(m.updates)
+	return
 }
 
 func (m *merge) Updates() <-chan Item {
@@ -21,5 +28,34 @@ func (m *merge) Updates() <-chan Item {
 // Merge follows the Fan-In pattern and merges
 // multiple Subscriptions into one
 func Merge(subs ...Subscription) Subscription {
-	return nil
+	m := &merge{
+		subs:    subs,
+		updates: make(chan Item),
+		quit:    make(chan struct{}),
+		err:     make(chan error),
+	}
+
+	for _, sub := range subs {
+		go func(s Subscription) {
+			for {
+				var item Item
+
+				select {
+				case item = <-s.Updates():
+				case <-m.quit:
+					m.err <- s.Close()
+					return
+				}
+
+				select {
+				case m.updates <- item:
+				case <-m.quit:
+					m.err <- s.Close()
+					return
+				}
+			}
+		}(sub)
+	}
+
+	return m
 }
