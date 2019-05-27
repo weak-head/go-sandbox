@@ -1,16 +1,30 @@
 package feedreader
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 var (
-	feeds = []string{"https://news.ycombinator.com/rss"}
+	feeds = []string{
+		"https://news.ycombinator.com/rss",
+		"https://www.allthingsdistributed.com/index.xml",
+		"https://www.joelonsoftware.com/feed",
+	}
 )
 
 func FetchFeeds() {
-	fetch := Fetch(feeds[0], false)
-	items, _, _ := fetch.Fetch()
+	var subs []Subscription
+	for _, feed := range feeds {
+		subs = append(subs, Subscribe(Fetch(feed, false)))
+	}
+	merged := Merge(subs...)
 
-	for _, i := range items {
-		fmt.Println(i)
+	time.AfterFunc(10*time.Second, func() {
+		fmt.Println("Closed:", merged.Close())
+	})
+
+	for it := range merged.Updates() {
+		fmt.Println(it)
 	}
 }
