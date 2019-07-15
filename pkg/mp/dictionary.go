@@ -1,15 +1,39 @@
 package mp
 
-import "errors"
+const (
+	ErrKeyNotFound      = DictionaryErr("could not find the key")
+	ErrKeyAlreadyExists = DictionaryErr("key already exists")
+)
 
-var ErrNoKeyFound = errors.New("could not find the key")
+type (
+	DictionaryErr string
+	Dictionary    map[string]string
+)
 
-type Dictionary map[string]string
+// DictionaryErr implements 'error' interface
+func (e DictionaryErr) Error() string {
+	return string(e)
+}
 
 func (d Dictionary) Search(key string) (string, error) {
 	value, ok := d[key]
 	if !ok {
-		return "", ErrNoKeyFound
+		return "", ErrKeyNotFound
 	}
 	return value, nil
+}
+
+func (d Dictionary) Add(key, value string) error {
+	_, err := d.Search(key)
+
+	switch err {
+	case ErrKeyNotFound:
+		d[key] = value
+	case nil:
+		return ErrKeyAlreadyExists
+	default:
+		return err
+	}
+
+	return nil
 }
