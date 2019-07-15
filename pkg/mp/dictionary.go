@@ -3,6 +3,7 @@ package mp
 const (
 	ErrKeyNotFound      = DictionaryErr("could not find the key")
 	ErrKeyAlreadyExists = DictionaryErr("key already exists")
+	ErrKeyDoesNotExists = DictionaryErr("key does not exist")
 )
 
 type (
@@ -36,4 +37,22 @@ func (d Dictionary) Add(key, value string) error {
 	}
 
 	return nil
+}
+
+func (d Dictionary) Update(key, value string) error {
+	_, err := d.Search(key)
+
+	switch err {
+	case ErrKeyNotFound:
+		return ErrKeyDoesNotExists
+	case nil:
+		d[key] = value
+	default:
+		return err
+	}
+	return nil
+}
+
+func (d Dictionary) Delete(key string) {
+	delete(d, key)
 }
