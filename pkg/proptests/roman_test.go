@@ -32,12 +32,25 @@ func TestRomanNumerals(t *testing.T) {
 		{Arabic: 798, Roman: "DCCXCVIII"},
 	}
 
-	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%d converts to %s", tc.Arabic, tc.Roman), func(t *testing.T) {
-			got := ConvertToRoman(tc.Arabic)
-			if got != tc.Roman {
-				t.Errorf("got %q want %q", got, tc.Roman)
-			}
-		})
-	}
+	t.Run("arabic to roman", func(t *testing.T) {
+		for _, tc := range testCases {
+			t.Run(fmt.Sprintf("%d converts to %s", tc.Arabic, tc.Roman), func(t *testing.T) {
+				got := ConvertToRoman(tc.Arabic)
+				if got != tc.Roman {
+					t.Errorf("got %q want %q", got, tc.Roman)
+				}
+			})
+		}
+	})
+
+	t.Run("roman to arabic", func(t *testing.T) {
+		for _, tc := range testCases {
+			t.Run(fmt.Sprintf("%s converts to %d", tc.Roman, tc.Arabic), func(t *testing.T) {
+				got := ConvertToArabic(tc.Roman)
+				if got != tc.Arabic {
+					t.Errorf("got %d want %d", got, tc.Arabic)
+				}
+			})
+		}
+	})
 }

@@ -21,6 +21,16 @@ var arabicToRomanMap = []struct {
 	{1, "I"},
 }
 
+var romanToArabic = map[rune]int{
+	'M': 1000,
+	'D': 500,
+	'C': 100,
+	'L': 50,
+	'X': 10,
+	'V': 5,
+	'I': 1,
+}
+
 func ConvertToRoman(num int) string {
 	var result strings.Builder
 	for _, amap := range arabicToRomanMap {
@@ -30,4 +40,18 @@ func ConvertToRoman(num int) string {
 		}
 	}
 	return result.String()
+}
+
+func ConvertToArabic(roman string) (arabic int) {
+	var prev int
+	for _, c := range roman {
+		val := romanToArabic[c]
+		if prev != 0 && prev < val {
+			arabic -= prev
+		} else {
+			arabic += prev
+		}
+		prev = val
+	}
+	return arabic + prev
 }
